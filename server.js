@@ -28,7 +28,7 @@ function yearsOfService(hireDate) {
 
 function ptoRateForEmployee(cfg) {
   // Same PTO rate for everyone
-  return cfg.pto_rate;
+  return cfg.pto_rate;   // must match the column name in config
 }
 
 function calcAccruals(emp, cfg) {
