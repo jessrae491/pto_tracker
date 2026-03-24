@@ -287,21 +287,25 @@ export default function App() {
         </div>
       </>}
 
-      {tab === 'schedule' && <>
+        {tab === 'schedule' && <>
         <div style={S.card}>
-          <div style={{ fontSize:13, fontWeight:600, color:'#555', marginBottom:'0.75rem' }}>26 bi-weekly pay periods starting 2/22/2026</div>
+          <div style={{ fontSize:13, fontWeight:600, color:'#555', marginBottom:'0.75rem' }}>
+            26 bi-weekly pay periods starting {fmt(cfg?.first_pp_start || '2026-02-22')}
+          </div>
           <div style={{ overflowX:'auto' }}>
             <table style={S.table}>
               <thead><tr>
-                {['PP #','Period start','Period end','Pay date','PTO rate 0–2 yrs','PTO rate 2–5 yrs','PTO rate 5+ yrs','Sick rate (all)'].map(h => <th key={h} style={S.th}>{h}</th>)}
+                {['PP #','Period start','Period end','Pay date','PTO rate (all)','Sick rate (all)'].map(h => (
+                  <th key={h} style={S.th}>{h}</th>
+                ))}
               </tr></thead>
               <tbody>
                 {Array.from({ length: 26 }, (_, i) => {
-                  const firstPP  = new Date('2026-02-22')
-                  const firstPay = new Date('2026-03-13')
+                  const firstPP  = new Date(cfg?.first_pp_start || '2026-02-22')
+                  const firstPay = new Date('2026-03-13') // or a cfg field if you add one
                   const ps = new Date(firstPP);  ps.setDate(ps.getDate() + i*14)
-                  const pe = new Date(ps);        pe.setDate(pe.getDate() + 13)
-                  const pd = new Date(firstPay);  pd.setDate(pd.getDate() + i*14)
+                  const pe = new Date(ps);       pe.setDate(pe.getDate() + 13)
+                  const pd = new Date(firstPay); pd.setDate(pd.getDate() + i*14)
                   const now = new Date(); now.setHours(0,0,0,0)
                   const cur = ps <= now && now <= pe
                   return (
@@ -310,10 +314,8 @@ export default function App() {
                       <td style={S.td}>{fmt(ps.toISOString().split('T')[0])}</td>
                       <td style={S.td}>{fmt(pe.toISOString().split('T')[0])}</td>
                       <td style={S.td}>{fmt(pd.toISOString().split('T')[0])}</td>
-                      <td style={S.td}>{cfg?.pto_rate_0_2 ?? 3.08}</td>
-                      <td style={S.td}>{cfg?.pto_rate_2_5 ?? 4.62}</td>
-                      <td style={S.td}>{cfg?.pto_rate_5p  ?? 6.15}</td>
-                      <td style={S.td}>{cfg?.sick_rate    ?? 1.54}</td>
+                      <td style={S.td}>{cfg?.pto_rate ?? 4.62}</td>
+                      <td style={S.td}>{cfg?.sick_rate ?? 1.54}</td>
                     </tr>
                   )
                 })}
