@@ -26,17 +26,14 @@ function yearsOfService(hireDate) {
   return (new Date() - new Date(hireDate)) / (365.25 * 24 * 60 * 60 * 1000);
 }
 
-function ptoRateForEmployee(years, cfg) {
-  // Everyone with less than 5 years gets 4.62 (from config)
-  if (years < 5) return cfg.pto_rate_0_5;  // or cfg.pto_rate_0_5; both are 4.62 now
-  // 5+ years gets the higher rate
-  return cfg.pto_rate_5p;
+function ptoRateForEmployee(cfg) {
+  // Same PTO rate for everyone
+  return cfg.pto_rate;
 }
 
 function calcAccruals(emp, cfg) {
   const pp   = payPeriodsCompleted(cfg.first_pp_start);
-  const yrs  = yearsOfService(emp.hire_date);
-  const rate = ptoRateForEmployee(yrs, cfg);
+  const rate = ptoRateForEmployee(cfg);  // no years-of-service logic
   const newPTO  = Math.min(rate * pp, cfg.pto_max  || 99999);
   const newSick = Math.min(cfg.sick_rate * pp, cfg.sick_max || 99999);
   return { pp, newPTO, newSick };
