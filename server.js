@@ -27,8 +27,9 @@ function yearsOfService(hireDate) {
 }
 
 function ptoRateForEmployee(years, cfg) {
-  if (years < 2) return cfg.pto_rate_0_2;
-  if (years < 5) return cfg.pto_rate_2_5;
+  // Everyone with less than 5 years gets 4.62 (from config)
+  if (years < 5) return cfg.pto_rate_0_2;  // or cfg.pto_rate_2_5; both are 4.62 now
+  // 5+ years gets the higher rate
   return cfg.pto_rate_5p;
 }
 
