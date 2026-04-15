@@ -30,7 +30,22 @@ function ptoRateForEmployee(cfg) {
   // Same PTO rate for everyone
   return cfg.pto_rate;   // must match the column name in config
 }
+function payPeriodsCompletedForEmployee(cfg, emp) {
+  const companyStart = new Date(cfg.first_pp_start);
+  const hireDate     = new Date(emp.hire_date);
 
+  // Start counting from the later of company start or hire date
+  const start = hireDate > companyStart ? hireDate : companyStart;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const diffMs   = today - start;
+  const twoWeeks = 14 * 24 * 60 * 60 * 1000;
+
+  const pp = Math.max(0, Math.floor(diffMs / twoWeeks));
+  return pp;
+}
 function calcAccruals(emp, cfg) {
   const pp   = payPeriodsCompleted(cfg.first_pp_start);
   const rate = ptoRateForEmployee(cfg);  // no years-of-service logic
