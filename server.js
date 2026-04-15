@@ -31,7 +31,7 @@ function ptoRateForEmployee(cfg) {
   return cfg.pto_rate;   // must match the column name in config
 }
 function payPeriodsCompletedForEmployee(cfg, emp) {
-  const companyStart = new Date(cfg.first_pp_start);
+  const companyStart = new Date(cfg.first_pp_start); // e.g., 2026-02-22
   const hireDate     = new Date(emp.hire_date);
 
   // Start counting from the later of company start or hire date
@@ -40,9 +40,21 @@ function payPeriodsCompletedForEmployee(cfg, emp) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const diffMs   = today - start;
+  // First pay date after the company start (you can adjust this if you store it in config)
+  const firstCompanyPay = new Date('2026-03-13'); // existing first pay for company
+  // For each employee, find their first pay date after their start
   const twoWeeks = 14 * 24 * 60 * 60 * 1000;
+  const weeksFromCompanyStart = Math.ceil((start - companyStart) / twoWeeks);
+  const firstPayForEmployee = new Date(firstCompanyPay);
+  firstPayForEmployee.setDate(firstPayForEmployee.getDate() + weeksFromCompanyStart * 14);
 
+  // If today is before their first pay date, no accrual yet
+  if (today < firstPayForEmployee) {
+    return 0;
+  }
+
+  // Otherwise, count full periods since their start
+  const diffMs = today - start;
   const pp = Math.max(0, Math.floor(diffMs / twoWeeks));
   return pp;
 }
