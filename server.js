@@ -47,7 +47,7 @@ function payPeriodsCompletedForEmployee(cfg, emp) {
   return pp;
 }
 function calcAccruals(emp, cfg) {
-  const pp   = payPeriodsCompleted(cfg.first_pp_start);
+  const pp   = payPeriodsCompletedForEmployee(cfg, emp);
   const rate = ptoRateForEmployee(cfg);  // no years-of-service logic
   const newPTO  = Math.min(rate * pp, cfg.pto_max  || 99999);
   const newSick = Math.min(cfg.sick_rate * pp, cfg.sick_max || 99999);
