@@ -30,28 +30,44 @@ function ptoRateForEmployee(cfg) {
   // Same PTO rate for everyone
   return cfg.pto_rate;   // must match the column name in config
 }
+Yes — if you only want accrual on posted pay dates, then the current function is still not the best approach. It is counting time since hire, but what you actually want is to count how many pay dates have passed for that employee. Biweekly payroll is driven by recurring pay dates every 14 days, and counting posted pay dates directly is the clearest way to match that rule.
+
+What to fix
+Replace your current payPeriodsCompletedForEmployee function with this version:
+
+js
 function payPeriodsCompletedForEmployee(cfg, emp) {
-  const companyStart = new Date(cfg.first_pp_start); // e.g., 2026-02-22
-  const hireDate     = new Date(emp.hire_date);
-
-  // Start counting from the later of company start or hire date
-  const start = hireDate > companyStart ? hireDate : companyStart;
-
+  const companyStart = new Date(cfg.first_pp_start);   // e.g. 2026-02-22
+  const hireDate = new Date(emp.hire_date);            // e.g. 2026-03-23
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // First pay date after the company start (you can adjust this if you store it in config)
-  const firstCompanyPay = new Date('2026-03-13'); // existing first pay for company
-  // For each employee, find their first pay date after their start
+  const firstCompanyPay = new Date('2026-03-13');      // first known pay date
   const twoWeeks = 14 * 24 * 60 * 60 * 1000;
-  const weeksFromCompanyStart = Math.floor((start - companyStart) / twoWeeks);
-  const firstPayForEmployee = new Date(firstCompanyPay);
-  firstPayForEmployee.setDate(firstPayForEmployee.getDate() + weeksFromCompanyStart * 14);
 
-  // If today is before their first pay date, no accrual yet
-  if (today < firstPayForEmployee) {
-    return 0;
+  const start = hireDate > companyStart ? hireDate : companyStart;
+
+  let payDate = new Date(firstCompanyPay);
+  let count = 0;
+
+  while (payDate <= today) {
+    const periodStart = new Date(companyStart);
+    const periodsFromStart = Math.round((payDate - firstCompanyPay) / twoWeeks);
+    periodStart.setDate(periodStart.getDate() + periodsFromStart * 14);
+
+    const periodEnd = new Date(periodStart);
+    periodEnd.setDate(periodEnd.getDate() + 13);
+
+    // Count this pay date only if the employee was employed during that pay period
+    if (hireDate <= periodEnd) {
+      count++;
+    }
+
+    payDate.setDate(payDate.getDate() + 14);
   }
+
+  return count;
+}
 
   // Otherwise, count full periods since their start
   const diffMs = today - start;
