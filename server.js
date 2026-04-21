@@ -44,7 +44,7 @@ function payPeriodsCompletedForEmployee(cfg, emp) {
   const firstCompanyPay = new Date('2026-03-13'); // existing first pay for company
   // For each employee, find their first pay date after their start
   const twoWeeks = 14 * 24 * 60 * 60 * 1000;
-  const weeksFromCompanyStart = Math.ceil((start - companyStart) / twoWeeks);
+  const weeksFromCompanyStart = Math.floor((start - companyStart) / twoWeeks);
   const firstPayForEmployee = new Date(firstCompanyPay);
   firstPayForEmployee.setDate(firstPayForEmployee.getDate() + weeksFromCompanyStart * 14);
 
